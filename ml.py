@@ -39,7 +39,8 @@ def predict_maker(slope, intercept):
         predictions = [1*(p >= t) for p in probabilities]
         return predictions
     return inner
-
+    
+#Ray Started from here!!!!!!
 def model():
     parameters = {}
     def inner_probabilities(xvalues):
@@ -53,8 +54,8 @@ def model():
         "predicts 1 or 0 for a threshold t, default 0.5"
         intercept = parameters['intercept']
         slope = parameters['slope']
-        predict_proba = predict_proba_maker(slope, intercept)
-        probabilities = predict_proba(xvalues)
+       
+        probabilities = inner_probabilities(xvalues)
         # compare to threshold t..1*false gives you 0
         predictions = [1*(p >= t) for p in probabilities]
         return predictions
@@ -84,15 +85,34 @@ def model():
         predict = inner_predictions
     )
     return methods
+
+class AbstractModel:
     
-
-class MLModel:
-
     def __init__(self):
-        self.slope = None
-        self.intercept = None
         self.probabilities = None
         self.predictions = None
+
+     def fit(self, xvalues, yvalues):
+         raise NotImplementedYetError
+
+
+    def predict_proba(self, xvalues):
+        raise NotImplementedYetError
+
+    def predict(self, xvalues, t=0.5):
+        "predicts 1 or 0 for a threshold t, default 0.5"
+        probabilities = self.predict_proba(xvalues)
+        # compare to threshold t..1*false gives you 0
+        self.predictions = [1*(p >= t) for p in probabilities]
+        return self.predictions
+
+class LogisticModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+        self.slope = None
+        self.intercept = None
+       
 
     def fit(self, xvalues, yvalues):
         """
